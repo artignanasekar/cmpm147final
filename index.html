@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Starfall Drift - Final Project Check-In</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="space-overlay"></div>
+
+  <div class="page">
+    <header class="topbar">
+      <div class="title-wrap">
+        <p class="eyebrow">prototype check-in // space roguelike</p>
+        <h1>STARFALL DRIFT</h1>
+        <p class="subtitle">planet generation + noise sectors + relic recovery loop</p>
+      </div>
+
+      <div class="hud">
+        <div class="hud-card">
+          <span class="hud-label">Fuel</span>
+          <span class="hud-value" id="fuel">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">Hull</span>
+          <span class="hud-value" id="hull">0</span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">Relics</span>
+          <span class="hud-value"><span id="relics">0</span>/<span id="goal">0</span></span>
+        </div>
+        <div class="hud-card">
+          <span class="hud-label">Turn</span>
+          <span class="hud-value" id="turn">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="panel left-panel">
+        <div class="panel-header">Mission Brief</div>
+        <p>
+          Enter a procedurally generated sector, scan planets, recover relics, survive environmental hazards,
+          and return to the jump gate.
+        </p>
+
+        <div class="panel-header">Controls</div>
+        <p>Move: Arrow keys or WASD</p>
+        <p>New run: <strong>R</strong></p>
+
+        <div class="panel-header">System Sources</div>
+        <p>
+          This prototype combines the planet idea from the space generator project with region and background
+          changes inspired by the noise/environment project.
+        </p>
+
+        <div class="panel-header">Legend</div>
+        <ul class="legend-list">
+          <li><span class="legend ship"></span> Ship</li>
+          <li><span class="legend gate"></span> Jump Gate</li>
+          <li><span class="legend planet"></span> Planet</li>
+          <li><span class="legend relic"></span> Relic Planet</li>
+          <li><span class="legend hazard"></span> Hazard</li>
+        </ul>
+      </section>
+
+      <section class="panel center-panel">
+        <div id="message" class="message">Collect relics from generated planets, then return to the gate.</div>
+        <div id="grid" class="grid" aria-label="game board"></div>
+      </section>
+
+      <section class="panel right-panel">
+        <div class="panel-header">Sector Readout</div>
+        <div id="seedLabel" class="info-box">Seed: none</div>
+        <div id="statusLabel" class="info-box">Status: in progress</div>
+        <div id="regionLabel" class="info-box">Region: none</div>
+
+        <div class="panel-header">Signal Scanner</div>
+        <div id="signalInfo" class="signal-box">
+          Awaiting scan...
+        </div>
+
+        <div class="panel-header">Planet Scan</div>
+        <div id="planetInfo" class="planet-info">
+          Move onto a planet to scan it.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
