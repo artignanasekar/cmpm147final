@@ -92,7 +92,7 @@ This creates layered variation where:
 ---
 ## Credits
 
-- **ChatGPT:**
+- **ChatGPT:** Helped with formatting and refining code structure and UI styling
 
 ## How to Run
 
