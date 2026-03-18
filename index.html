@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Starfall Drift - Final Project Check-In</title>
+  <title>Starfall Drift - Final Project</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,9 +12,9 @@
   <div class="page">
     <header class="topbar">
       <div class="title-wrap">
-        <p class="eyebrow">prototype check-in // space roguelike</p>
+        <p class="eyebrow">final project // procedural space roguelike</p>
         <h1>STARFALL DRIFT</h1>
-        <p class="subtitle">planet generation + noise sectors + relic recovery loop</p>
+        <p class="subtitle">planet generation + noise sectors + live pattern lattice</p>
       </div>
 
       <div class="hud">
@@ -49,10 +49,16 @@
         <p>Move: Arrow keys or WASD</p>
         <p>New run: <strong>R</strong></p>
 
-        <div class="panel-header">System Sources</div>
+        <div class="panel-header">Procedural Systems</div>
         <p>
-          This prototype combines the planet idea from the space generator project with region and background
-          changes inspired by the noise/environment project.
+          Each run generates a new region map, planet layout, hazard layout, and pattern lattice.
+          The pattern lattice changes tile behavior and influences danger, repairs, and fuel bonuses.
+        </p>
+
+        <div class="panel-header">Midterm Tool Integration</div>
+        <p>
+          This game uses my own space generator ideas for sectors and planets, and it integrates the outside
+          Pattern Generator tool by turning shape-based grid patterns into a live gameplay system that affects each run.
         </p>
 
         <div class="panel-header">Legend</div>
@@ -63,6 +69,14 @@
           <li><span class="legend relic"></span> Relic Planet</li>
           <li><span class="legend hazard"></span> Hazard</li>
         </ul>
+
+        <div class="panel-header">Credits</div>
+        <p>
+          External midterm tool inspiration: tyu72’s Procedural Pattern Generator.
+        </p>
+        <p>
+          AI assistance should be disclosed in your final submission if you used it in development or writing.
+        </p>
       </section>
 
       <section class="panel center-panel">
@@ -79,6 +93,11 @@
         <div class="panel-header">Signal Scanner</div>
         <div id="signalInfo" class="signal-box">
           Awaiting scan...
+        </div>
+
+        <div class="panel-header">Pattern Lattice</div>
+        <div id="patternInfo" class="signal-box">
+          Awaiting pattern readout...
         </div>
 
         <div class="panel-header">Planet Scan</div>
