@@ -15,6 +15,83 @@ const PLANET_TYPES_BY_REGION = {
 const FIRST_SYLLABLES = ["Ve", "Ka", "Lu", "Or", "Ny", "Xi", "Sa", "Ty", "Ae", "Dro", "Zy", "Sol"];
 const SECOND_SYLLABLES = ["lora", "th", "mir", "zen", "dara", "vex", "tune", "rion", "phos", "nix", "gale", "vora"];
 
+/* ----------------- pattern-generator-inspired system -----------------
+   Inspired by the external "Procedural Pattern Generator" tool:
+   - grid-based generation
+   - limited shape vocabulary
+   - different shape-count settings produce different texture/variation
+--------------------------------------------------------------------- */
+const PATTERN_SHAPES = ["circle", "square", "triangle", "diamond", "hex", "star", "cross", "ring"];
+const PATTERN_SYMBOLS = {
+  circle: "◌",
+  square: "□",
+  triangle: "△",
+  diamond: "◇",
+  hex: "⬡",
+  star: "✦",
+  cross: "✚",
+  ring: "◍"
+};
+
+const PATTERN_EFFECTS = {
+  circle: {
+    name: "orbital loop",
+    fuel: 1,
+    hull: 0,
+    danger: 0,
+    note: "Circular lattice pockets trap recoverable energy."
+  },
+  square: {
+    name: "stable grid",
+    fuel: 0,
+    hull: 1,
+    danger: -1,
+    note: "Rigid patterning helps ship systems stabilize."
+  },
+  triangle: {
+    name: "spike field",
+    fuel: 0,
+    hull: 0,
+    danger: 1,
+    note: "Sharp triangulated interference increases threat."
+  },
+  diamond: {
+    name: "prism mesh",
+    fuel: 0,
+    hull: 1,
+    danger: 0,
+    note: "Prismatic refractions support clean scans."
+  },
+  hex: {
+    name: "honeycomb current",
+    fuel: 1,
+    hull: 0,
+    danger: 0,
+    note: "Hex channels create efficient movement corridors."
+  },
+  star: {
+    name: "flare cluster",
+    fuel: 0,
+    hull: 0,
+    danger: 2,
+    note: "Star-like bursts produce unstable energy spikes."
+  },
+  cross: {
+    name: "cross shear",
+    fuel: 0,
+    hull: 0,
+    danger: 1,
+    note: "Cross-pattern turbulence disrupts route planning."
+  },
+  ring: {
+    name: "resonance loop",
+    fuel: 2,
+    hull: 0,
+    danger: 0,
+    note: "Resonant loops improve salvage and fuel recovery."
+  }
+};
+
 const gridEl = document.getElementById("grid");
 const messageEl = document.getElementById("message");
 const fuelEl = document.getElementById("fuel");
@@ -27,6 +104,7 @@ const statusLabelEl = document.getElementById("statusLabel");
 const regionLabelEl = document.getElementById("regionLabel");
 const planetInfoEl = document.getElementById("planetInfo");
 const signalInfoEl = document.getElementById("signalInfo");
+const patternInfoEl = document.getElementById("patternInfo");
 
 let state = null;
 
@@ -64,6 +142,10 @@ function randInt(rng, min, max) {
 
 function pick(rng, arr) {
   return arr[Math.floor(rng() * arr.length)];
+}
+
+function chance(rng, amount) {
+  return rng() < amount;
 }
 
 function key(x, y) {
@@ -141,33 +223,20 @@ function setMessage(text) {
   messageEl.textContent = text;
 }
 
+function getPatternAt(x, y) {
+  return state.patternMap[y][x];
+}
+
+function getPatternEffect(shape) {
+  return PATTERN_EFFECTS[shape];
+}
+
 /* ----------------- generation ----------------- */
 function makePlanetName(rng) {
   const first = pick(rng, FIRST_SYLLABLES);
   const second = pick(rng, SECOND_SYLLABLES);
   const num = randInt(rng, 2, 9);
   return `${first}${second}-${num}`;
-}
-
-function makePlanet(rng, x, y, region) {
-  const type = pick(rng, PLANET_TYPES_BY_REGION[region]);
-  const hasRelic = rng() < 0.42;
-  const fuelBonus = randInt(rng, 1, 3);
-  const hullBonus = rng() < 0.35 ? 1 : 0;
-  const danger = randInt(rng, 1, 3) + (region === "crimson" || region === "ion" ? 1 : 0);
-
-  return {
-    x,
-    y,
-    name: makePlanetName(rng),
-    region,
-    type,
-    hasRelic,
-    fuelBonus,
-    hullBonus,
-    danger,
-    visited: false
-  };
 }
 
 function generateRegionMap(seedNum) {
@@ -183,6 +252,50 @@ function generateRegionMap(seedNum) {
   return map;
 }
 
+/* Pattern-generator-inspired live system */
+function generatePatternConfig(rng) {
+  const width = SIZE;
+  const height = SIZE;
+  const shapeCount = randInt(rng, 3, 6);
+  const allowedShapes = PATTERN_SHAPES.slice(0, shapeCount);
+
+  return {
+    width,
+    height,
+    shapeCount,
+    allowedShapes
+  };
+}
+
+function generatePatternMap(rng, config) {
+  const map = [];
+
+  for (let y = 0; y < config.height; y++) {
+    const row = [];
+    for (let x = 0; x < config.width; x++) {
+      // Create clustered motifs so it feels like patterned structure rather than pure noise
+      const left = x > 0 ? row[x - 1] : null;
+      const up = y > 0 ? map[y - 1][x] : null;
+
+      let shape;
+      if (left && up && chance(rng, 0.45)) {
+        shape = chance(rng, 0.5) ? left : up;
+      } else if (left && chance(rng, 0.28)) {
+        shape = left;
+      } else if (up && chance(rng, 0.28)) {
+        shape = up;
+      } else {
+        shape = pick(rng, config.allowedShapes);
+      }
+
+      row.push(shape);
+    }
+    map.push(row);
+  }
+
+  return map;
+}
+
 function randomEmptyCell(rng, used) {
   let x, y;
   do {
@@ -193,13 +306,43 @@ function randomEmptyCell(rng, used) {
   return { x, y };
 }
 
-function generatePlanets(rng, used, regionMap) {
+function makePlanet(rng, x, y, region, patternShape) {
+  const type = pick(rng, PLANET_TYPES_BY_REGION[region]);
+  const effect = getPatternEffect(patternShape);
+
+  let hasRelic = chance(rng, 0.42);
+  let fuelBonus = randInt(rng, 1, 3) + effect.fuel;
+  let hullBonus = chance(rng, 0.35) ? 1 : 0;
+  hullBonus += effect.hull;
+  let danger = randInt(rng, 1, 3) + (region === "crimson" || region === "ion" ? 1 : 0) + effect.danger;
+
+  if (danger < 1) danger = 1;
+  if (fuelBonus < 1) fuelBonus = 1;
+  if (hullBonus < 0) hullBonus = 0;
+
+  return {
+    x,
+    y,
+    name: makePlanetName(rng),
+    region,
+    type,
+    hasRelic,
+    fuelBonus,
+    hullBonus,
+    danger,
+    patternShape,
+    visited: false
+  };
+}
+
+function generatePlanets(rng, used, regionMap, patternMap) {
   const planets = [];
 
   for (let i = 0; i < PLANET_COUNT; i++) {
     const pos = randomEmptyCell(rng, used);
     const region = regionMap[pos.y][pos.x];
-    planets.push(makePlanet(rng, pos.x, pos.y, region));
+    const patternShape = patternMap[pos.y][pos.x];
+    planets.push(makePlanet(rng, pos.x, pos.y, region, patternShape));
   }
 
   let relicCount = planets.filter((p) => p.hasRelic).length;
@@ -214,7 +357,7 @@ function generatePlanets(rng, used, regionMap) {
   return planets;
 }
 
-function generateHazards(rng, used, regionMap) {
+function generateHazards(rng, used, regionMap, patternMap) {
   const hazards = new Set();
 
   for (let y = 0; y < SIZE; y++) {
@@ -223,15 +366,26 @@ function generateHazards(rng, used, regionMap) {
       if (used.has(k)) continue;
 
       const region = regionMap[y][x];
-      let chance = 0.05;
+      const patternShape = patternMap[y][x];
+      const effect = getPatternEffect(patternShape);
 
-      if (region === "asteroid") chance = 0.18;
-      if (region === "ion") chance = 0.12;
-      if (region === "crimson") chance = 0.14;
-      if (region === "void") chance = 0.03;
-      if (region === "nebula") chance = 0.07;
+      let chanceValue = 0.05;
 
-      if (rng() < chance) {
+      if (region === "asteroid") chanceValue = 0.18;
+      if (region === "ion") chanceValue = 0.12;
+      if (region === "crimson") chanceValue = 0.14;
+      if (region === "void") chanceValue = 0.03;
+      if (region === "nebula") chanceValue = 0.07;
+
+      // Pattern lattice modifies risk
+      if (effect.danger >= 2) chanceValue += 0.08;
+      else if (effect.danger === 1) chanceValue += 0.04;
+      else if (effect.hull > 0) chanceValue -= 0.03;
+      else if (effect.fuel > 0) chanceValue -= 0.01;
+
+      chanceValue = Math.max(0.01, Math.min(0.35, chanceValue));
+
+      if (chance(rng, chanceValue)) {
         hazards.add(k);
       }
     }
@@ -243,6 +397,20 @@ function generateHazards(rng, used, regionMap) {
 /* ----------------- game state helpers ----------------- */
 function findPlanetAt(x, y) {
   return state.planets.find((p) => p.x === x && p.y === y);
+}
+
+function updatePatternInfo(x, y) {
+  const patternShape = state.patternMap[y][x];
+  const effect = getPatternEffect(patternShape);
+
+  patternInfoEl.innerHTML = `
+    <strong>Lattice Shape:</strong> ${patternShape} ${PATTERN_SYMBOLS[patternShape]}<br>
+    <strong>Pattern Effect:</strong> ${effect.name}<br>
+    <strong>Fuel Influence:</strong> ${effect.fuel >= 0 ? "+" : ""}${effect.fuel}<br>
+    <strong>Hull Influence:</strong> ${effect.hull >= 0 ? "+" : ""}${effect.hull}<br>
+    <strong>Danger Influence:</strong> ${effect.danger >= 0 ? "+" : ""}${effect.danger}<br>
+    <strong>Notes:</strong> ${effect.note}
+  `;
 }
 
 function updateSignalInfo(region, planet = null) {
@@ -267,29 +435,41 @@ function updateSignalInfo(region, planet = null) {
 }
 
 function updatePlanetInfo(planet, regionOverride = null) {
+  const px = state.player.x;
+  const py = state.player.y;
+  const currentPattern = getPatternAt(px, py);
+
   if (planet) {
     planetInfoEl.innerHTML = `
       <div class="planet-name">${planet.name}</div>
       <div>
         <span class="tag">${planet.type}</span>
         <span class="tag">${prettyRegion(planet.region)}</span>
+        <span class="tag">${planet.patternShape}</span>
       </div>
       <div>Danger: ${planet.danger}</div>
       <div>Fuel gain: +${planet.fuelBonus}</div>
       <div>Hull repair: +${planet.hullBonus}</div>
       <div>Relic status: ${planet.hasRelic ? "contains relic" : "no relic / already claimed"}</div>
       <div>Visit status: ${planet.visited ? "visited" : "unvisited"}</div>
+      <div>Pattern lattice: ${currentPattern} ${PATTERN_SYMBOLS[currentPattern]}</div>
     `;
     updateSignalInfo(planet.region, planet);
   } else {
-    const region = regionOverride || state.regionMap[state.player.y][state.player.x];
+    const region = regionOverride || state.regionMap[py][px];
     planetInfoEl.innerHTML = `
       <div class="planet-name">No planet on this tile</div>
-      <div><span class="tag">${prettyRegion(region)}</span></div>
-      <div>This part of the sector is shaped by the region map rather than a planet node.</div>
+      <div>
+        <span class="tag">${prettyRegion(region)}</span>
+        <span class="tag">${currentPattern}</span>
+      </div>
+      <div>This sector tile is shaped by the region map and the live pattern lattice.</div>
+      <div>Pattern symbol: ${PATTERN_SYMBOLS[currentPattern]}</div>
     `;
     updateSignalInfo(region, null);
   }
+
+  updatePatternInfo(px, py);
 }
 
 /* ----------------- setup ----------------- */
@@ -304,8 +484,10 @@ function newGame() {
   used.add(key(gate.x, gate.y));
 
   const regionMap = generateRegionMap(seedNum);
-  const planets = generatePlanets(rng, used, regionMap);
-  const hazards = generateHazards(rng, used, regionMap);
+  const patternConfig = generatePatternConfig(rng);
+  const patternMap = generatePatternMap(rng, patternConfig);
+  const planets = generatePlanets(rng, used, regionMap, patternMap);
+  const hazards = generateHazards(rng, used, regionMap, patternMap);
 
   state = {
     seed,
@@ -314,6 +496,8 @@ function newGame() {
     gate,
     player: { x: gate.x, y: gate.y },
     regionMap,
+    patternConfig,
+    patternMap,
     planets,
     hazards,
     visited: new Set([key(gate.x, gate.y)]),
@@ -326,7 +510,7 @@ function newGame() {
   };
 
   goalEl.textContent = RELIC_GOAL;
-  setMessage("Collect relics from generated planets, then return to the gate.");
+  setMessage("Collect relics from generated planets, survive hazards, and return to the gate.");
   updatePlanetInfo(null, state.regionMap[state.player.y][state.player.x]);
   render();
 }
@@ -355,7 +539,7 @@ function visitPlanet(planet) {
       parts.push("Recovered an ancient relic.");
     }
 
-    if (planet.danger >= 4 && Math.random() < 0.45) {
+    if (planet.danger >= 4 && chance(state.rng, 0.45)) {
       state.hull -= 1;
       parts.push("The landing was unstable. Hull -1.");
     }
@@ -367,14 +551,34 @@ function visitPlanet(planet) {
   updatePlanetInfo(planet);
 }
 
-function applyRegionEffect(region) {
-  if (region === "ion" && Math.random() < 0.25) {
+function applyRegionAndPatternEffect(region, patternShape) {
+  const parts = [];
+  const effect = getPatternEffect(patternShape);
+
+  if (region === "ion" && chance(state.rng, 0.25)) {
     state.hull -= 1;
-    setMessage("An ion surge crackles across the hull. Hull -1.");
-  } else if (region === "nebula" && Math.random() < 0.2) {
+    parts.push("An ion surge crackles across the hull. Hull -1.");
+  } else if (region === "nebula" && chance(state.rng, 0.20)) {
     state.fuel -= 1;
-    setMessage("The nebula slows navigation. Fuel -1.");
+    parts.push("The nebula slows navigation. Fuel -1.");
   }
+
+  if ((patternShape === "circle" || patternShape === "ring") && chance(state.rng, 0.22)) {
+    state.fuel += 1;
+    parts.push("The lattice resonates with stored energy. Fuel +1.");
+  }
+
+  if ((patternShape === "triangle" || patternShape === "star" || patternShape === "cross") && chance(state.rng, 0.18)) {
+    state.hull -= 1;
+    parts.push("Pattern turbulence shakes the ship. Hull -1.");
+  }
+
+  if ((patternShape === "square" || patternShape === "diamond") && chance(state.rng, 0.16)) {
+    state.hull += 1;
+    parts.push("The stable lattice reinforces your systems. Hull +1.");
+  }
+
+  return parts;
 }
 
 function movePlayer(dx, dy) {
@@ -396,20 +600,25 @@ function movePlayer(dx, dy) {
 
   const region = state.regionMap[ny][nx];
   const currentKey = key(nx, ny);
+  const patternShape = state.patternMap[ny][nx];
+  const parts = [`You drift into the ${prettyRegion(region)}.`];
 
   if (state.hazards.has(currentKey)) {
     state.hull -= 1;
-    setMessage("You crossed a hazard field. Hull -1.");
-  } else {
-    setMessage(`You drift into the ${prettyRegion(region)}.`);
+    parts.push("You crossed a hazard field. Hull -1.");
   }
 
-  applyRegionEffect(region);
+  parts.push(...applyRegionAndPatternEffect(region, patternShape));
 
   const planet = findPlanetAt(nx, ny);
   if (planet) {
+    if (!planet.visited) {
+      planet.visited = false;
+    }
+    setMessage(parts.join(" "));
     visitPlanet(planet);
   } else {
+    setMessage(parts.join(" "));
     updatePlanetInfo(null, region);
   }
 
@@ -446,6 +655,9 @@ function getCellClasses(x, y) {
 
   const k = key(x, y);
   const planet = findPlanetAt(x, y);
+  const patternShape = state.patternMap[y][x];
+
+  classes += ` pattern-${patternShape}`;
 
   if (state.player.x === x && state.player.y === y) {
     classes += " player";
@@ -469,13 +681,14 @@ function getCellClasses(x, y) {
 function getCellSymbol(x, y) {
   const k = key(x, y);
   const planet = findPlanetAt(x, y);
+  const patternShape = state.patternMap[y][x];
 
   if (state.player.x === x && state.player.y === y) return "🚀";
   if (state.gate.x === x && state.gate.y === y) return "🌀";
   if (planet && planet.hasRelic) return "🪐";
   if (planet) return "○";
   if (state.hazards.has(k)) return "☄";
-  return "·";
+  return PATTERN_SYMBOLS[patternShape];
 }
 
 function render() {
