@@ -3,25 +3,24 @@
 }
 
 :root {
-  --bg: #060913;
-  --panel: rgba(11, 18, 35, 0.88);
-  --panel-border: #2b3a63;
-  --text: #edf3ff;
-  --muted: #aab8dc;
-  --accent: #89b8ff;
-  --accent-2: #73f0d1;
-  --warning: #ff8cac;
-  --gold: #ffd974;
+  --bg: #000000;
+  --panel: rgba(0, 0, 0, 0.94);
+  --panel-border: #0f5f2a;
+  --text: #7dff9b;
+  --muted: #49c46d;
+  --accent: #8dffab;
+  --accent-2: #5cff87;
+  --warning: #b7ff7a;
+  --gold: #aaff66;
 }
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Courier New", Courier, monospace;
   color: var(--text);
-  background:
-    radial-gradient(circle at top, rgba(47, 77, 162, 0.15), transparent 30%),
-    radial-gradient(circle at bottom, rgba(125, 39, 96, 0.14), transparent 25%),
-    var(--bg);
+  background: var(--bg);
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 4px rgba(92, 255, 135, 0.18);
 }
 
 .space-overlay {
@@ -29,12 +28,15 @@ body {
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 14% 20%, rgba(255,255,255,0.85) 0 1px, transparent 2px),
-    radial-gradient(circle at 72% 32%, rgba(255,255,255,0.7) 0 1px, transparent 2px),
-    radial-gradient(circle at 55% 76%, rgba(255,255,255,0.65) 0 1px, transparent 2px),
-    radial-gradient(circle at 82% 64%, rgba(173,205,255,0.7) 0 1px, transparent 2px),
-    radial-gradient(circle at 33% 55%, rgba(255,255,255,0.5) 0 1px, transparent 2px);
-  opacity: 0.5;
+    linear-gradient(rgba(0, 255, 100, 0.03), rgba(0, 255, 100, 0.03)),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0px,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  opacity: 0.25;
 }
 
 .page {
@@ -60,16 +62,16 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.72rem;
-  color: var(--accent-2);
+  color: var(--muted);
 }
 
 h1 {
   margin: 0;
   font-size: 2.45rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   line-height: 0.95;
-  color: #f9fbff;
-  text-shadow: 0 0 18px rgba(115, 240, 209, 0.15);
+  color: var(--accent-2);
+  text-shadow: 0 0 10px rgba(92, 255, 135, 0.35);
 }
 
 .subtitle {
@@ -85,11 +87,11 @@ h1 {
 }
 
 .hud-card {
-  background: linear-gradient(180deg, rgba(18,27,51,0.95), rgba(10,15,30,0.95));
+  background: rgba(0, 0, 0, 0.96);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 12px 14px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset;
+  box-shadow: inset 0 0 0 1px rgba(92, 255, 135, 0.08);
 }
 
 .hud-label {
@@ -104,7 +106,7 @@ h1 {
 .hud-value {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--accent-2);
 }
 
 .main-layout {
@@ -116,20 +118,19 @@ h1 {
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 16px;
+  border-radius: 0;
   padding: 16px;
-  backdrop-filter: blur(4px);
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.25),
-    inset 0 0 0 1px rgba(255,255,255,0.025);
+    inset 0 0 0 1px rgba(92, 255, 135, 0.06),
+    0 0 12px rgba(20, 120, 40, 0.15);
 }
 
 .panel-header {
   margin-bottom: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(112, 144, 214, 0.24);
+  border-bottom: 1px solid rgba(92, 255, 135, 0.22);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   font-size: 0.78rem;
   color: var(--accent-2);
 }
@@ -137,7 +138,7 @@ h1 {
 .panel p,
 .panel li {
   line-height: 1.5;
-  color: #dbe4ff;
+  color: var(--text);
 }
 
 .grid {
@@ -149,103 +150,23 @@ h1 {
   margin-top: 12px;
 }
 
-.cell {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  border: 1px solid rgba(110, 132, 192, 0.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  user-select: none;
-  position: relative;
-  overflow: hidden;
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-
-.cell:hover {
-  transform: translateY(-1px);
-}
-
-.cell.visited::after {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 1px dashed rgba(255,255,255,0.18);
-  border-radius: 8px;
-}
-
-.player {
-  box-shadow: inset 0 0 0 2px #99c2ff, 0 0 12px rgba(137,184,255,0.28);
-}
-
-.gate {
-  box-shadow: inset 0 0 0 2px #73f0d1, 0 0 12px rgba(115,240,209,0.22);
-}
-
-.planet {
-  box-shadow: inset 0 0 0 2px var(--gold);
-}
-
-.relic-planet {
-  box-shadow: inset 0 0 0 2px #fff0a0, 0 0 16px rgba(255, 232, 141, 0.3);
-}
-
-.hazard {
-  box-shadow: inset 0 0 0 2px var(--warning);
-}
-
-.region-nebula {
-  background:
-    radial-gradient(circle at 28% 30%, rgba(205,144,255,0.45) 0 18%, transparent 19%),
-    radial-gradient(circle at 70% 68%, rgba(108,140,255,0.34) 0 14%, transparent 15%),
-    linear-gradient(180deg, #18193c, #11152f);
-}
-
-.region-asteroid {
-  background:
-    radial-gradient(circle at 36% 34%, rgba(182,182,182,0.58) 0 7%, transparent 8%),
-    radial-gradient(circle at 72% 60%, rgba(120,120,120,0.5) 0 6%, transparent 7%),
-    linear-gradient(180deg, #26222c, #17151e);
-}
-
-.region-void {
-  background:
-    radial-gradient(circle at 22% 26%, rgba(255,255,255,0.7) 0 2%, transparent 3%),
-    radial-gradient(circle at 76% 74%, rgba(169,188,255,0.55) 0 2%, transparent 3%),
-    linear-gradient(180deg, #090c15, #04060d);
-}
-
-.region-ion {
-  background:
-    radial-gradient(circle at 25% 22%, rgba(104,255,255,0.3) 0 14%, transparent 15%),
-    radial-gradient(circle at 72% 70%, rgba(74,171,255,0.28) 0 12%, transparent 13%),
-    linear-gradient(180deg, #0b2634, #0a1826);
-}
-
-.region-crimson {
-  background:
-    radial-gradient(circle at 26% 22%, rgba(255,105,105,0.36) 0 16%, transparent 17%),
-    radial-gradient(circle at 76% 68%, rgba(255,164,96,0.2) 0 12%, transparent 13%),
-    linear-gradient(180deg, #2c1019, #160911);
-}
+.cell { width: 50px; height: 50px; border-radius: 10px; border: 1px solid rgba(110, 132, 192, 0.22); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; user-select: none; position: relative; overflow: hidden; transition: transform 120ms ease, box-shadow 120ms ease; } .cell:hover { transform: translateY(-1px); } .cell.visited::after { content: ""; position: absolute; inset: 3px; border: 1px dashed rgba(255,255,255,0.18); border-radius: 8px; } .player { box-shadow: inset 0 0 0 2px #99c2ff, 0 0 12px rgba(137,184,255,0.28); } .gate { box-shadow: inset 0 0 0 2px #73f0d1, 0 0 12px rgba(115,240,209,0.22); } .planet { box-shadow: inset 0 0 0 2px var(--gold); } .relic-planet { box-shadow: inset 0 0 0 2px #fff0a0, 0 0 16px rgba(255, 232, 141, 0.3); } .hazard { box-shadow: inset 0 0 0 2px var(--warning); } .region-nebula { background: radial-gradient(circle at 28% 30%, rgba(205,144,255,0.45) 0 18%, transparent 19%), radial-gradient(circle at 70% 68%, rgba(108,140,255,0.34) 0 14%, transparent 15%), linear-gradient(180deg, #18193c, #11152f); } .region-asteroid { background: radial-gradient(circle at 36% 34%, rgba(182,182,182,0.58) 0 7%, transparent 8%), radial-gradient(circle at 72% 60%, rgba(120,120,120,0.5) 0 6%, transparent 7%), linear-gradient(180deg, #26222c, #17151e); } .region-void { background: radial-gradient(circle at 22% 26%, rgba(255,255,255,0.7) 0 2%, transparent 3%), radial-gradient(circle at 76% 74%, rgba(169,188,255,0.55) 0 2%, transparent 3%), linear-gradient(180deg, #090c15, #04060d); } .region-ion { background: radial-gradient(circle at 25% 22%, rgba(104,255,255,0.3) 0 14%, transparent 15%), radial-gradient(circle at 72% 70%, rgba(74,171,255,0.28) 0 12%, transparent 13%), linear-gradient(180deg, #0b2634, #0a1826); } .region-crimson { background: radial-gradient(circle at 26% 22%, rgba(255,105,105,0.36) 0 16%, transparent 17%), radial-gradient(circle at 76% 68%, rgba(255,164,96,0.2) 0 12%, transparent 13%), linear-gradient(180deg, #2c1019, #160911); }
 
 .message,
 .info-box,
 .signal-box,
 .planet-info {
-  background: rgba(15, 23, 43, 0.9);
+  background: rgba(0, 0, 0, 0.96);
   border: 1px solid var(--panel-border);
-  border-radius: 12px;
+  border-radius: 0;
   padding: 12px;
+  box-shadow: inset 0 0 0 1px rgba(92, 255, 135, 0.05);
 }
 
 .message {
   text-align: center;
   font-weight: bold;
-  color: #ffffff;
-  box-shadow: 0 0 20px rgba(115,240,209,0.06) inset;
+  color: var(--accent-2);
 }
 
 .info-box + .info-box {
@@ -254,14 +175,14 @@ h1 {
 
 .signal-box {
   min-height: 90px;
-  color: #dce8ff;
+  color: var(--text);
   line-height: 1.5;
   margin-bottom: 14px;
 }
 
 .planet-info {
   min-height: 170px;
-  color: #eef3ff;
+  color: var(--text);
   line-height: 1.5;
 }
 
@@ -269,41 +190,64 @@ h1 {
   font-size: 1.06rem;
   font-weight: bold;
   margin-bottom: 8px;
-  color: #ffffff;
+  color: var(--accent-2);
 }
 
 .planet-info .tag {
   display: inline-block;
   margin: 2px 6px 6px 0;
   padding: 4px 9px;
-  border-radius: 999px;
-  background: #182543;
-  border: 1px solid #33476d;
+  border-radius: 0;
+  background: #020702;
+  border: 1px solid #145a28;
   font-size: 0.83rem;
+  color: var(--text);
 }
 
 .legend {
   display: inline-block;
   width: 14px;
   height: 14px;
-  border-radius: 4px;
+  border-radius: 0;
   margin-right: 8px;
   vertical-align: middle;
+  border: 1px solid rgba(92, 255, 135, 0.18);
 }
 
-.legend.ship { background: #99c2ff; }
-.legend.gate { background: #73f0d1; }
-.legend.planet { background: #ffd974; }
-.legend.relic { background: #fff0a0; }
-.legend.hazard { background: #ff8cac; }
+.legend.ship { background: #8dffab; }
+.legend.gate { background: #5cff87; }
+.legend.planet { background: #aaff66; }
+.legend.relic { background: #d4ff9d; }
+.legend.hazard { background: #c7ff70; }
 
 .legend-list {
   padding-left: 18px;
 }
 
-ul, ol {
+ul,
+ol {
   padding-left: 20px;
 }
+
+.pattern-circle,
+.pattern-ring,
+.pattern-hex,
+.pattern-square,
+.pattern-diamond,
+.pattern-triangle,
+.pattern-star,
+.pattern-cross {
+  text-shadow: 0 0 6px rgba(92, 255, 135, 0.22);
+}
+
+.pattern-circle { color: #7dff9b; }
+.pattern-ring { color: #9fffaa; }
+.pattern-hex { color: #8eff8a; }
+.pattern-square { color: #b7ff7a; }
+.pattern-diamond { color: #94ff84; }
+.pattern-triangle { color: #c7ff70; }
+.pattern-star { color: #d4ff9d; }
+.pattern-cross { color: #aaff66; }
 
 @media (max-width: 1120px) {
   .main-layout {
