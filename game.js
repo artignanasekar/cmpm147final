@@ -15,12 +15,6 @@ const PLANET_TYPES_BY_REGION = {
 const FIRST_SYLLABLES = ["Ve", "Ka", "Lu", "Or", "Ny", "Xi", "Sa", "Ty", "Ae", "Dro", "Zy", "Sol"];
 const SECOND_SYLLABLES = ["lora", "th", "mir", "zen", "dara", "vex", "tune", "rion", "phos", "nix", "gale", "vora"];
 
-/* ----------------- pattern-generator-inspired system -----------------
-   Inspired by the external "Procedural Pattern Generator" tool:
-   - grid-based generation
-   - limited shape vocabulary
-   - different shape-count settings produce different texture/variation
---------------------------------------------------------------------- */
 const PATTERN_SHAPES = ["circle", "square", "triangle", "diamond", "hex", "star", "cross", "ring"];
 const PATTERN_SYMBOLS = {
   circle: "◌",
@@ -108,7 +102,6 @@ const patternInfoEl = document.getElementById("patternInfo");
 
 let state = null;
 
-/* ----------------- seeded random ----------------- */
 function stringToSeed(str) {
   let h = 1779033703 ^ str.length;
   for (let i = 0; i < str.length; i++) {
@@ -156,7 +149,6 @@ function inBounds(x, y) {
   return x >= 0 && x < SIZE && y >= 0 && y < SIZE;
 }
 
-/* ----------------- lightweight noise field ----------------- */
 function noiseValue(x, y, seed) {
   const v =
     Math.sin((x * 0.83 + seed * 0.17) * 1.21) +
@@ -175,7 +167,6 @@ function regionFromNoise(n) {
   return "crimson";
 }
 
-/* ----------------- display helpers ----------------- */
 function prettyRegion(region) {
   const names = {
     nebula: "Nebula",
@@ -231,7 +222,6 @@ function getPatternEffect(shape) {
   return PATTERN_EFFECTS[shape];
 }
 
-/* ----------------- generation ----------------- */
 function makePlanetName(rng) {
   const first = pick(rng, FIRST_SYLLABLES);
   const second = pick(rng, SECOND_SYLLABLES);
@@ -394,7 +384,6 @@ function generateHazards(rng, used, regionMap, patternMap) {
   return hazards;
 }
 
-/* ----------------- game state helpers ----------------- */
 function findPlanetAt(x, y) {
   return state.planets.find((p) => p.x === x && p.y === y);
 }
@@ -472,7 +461,6 @@ function updatePlanetInfo(planet, regionOverride = null) {
   updatePatternInfo(px, py);
 }
 
-/* ----------------- setup ----------------- */
 function newGame() {
   const seed = Math.random().toString(36).slice(2, 8).toUpperCase();
   const rng = createRng(seed);
@@ -515,7 +503,6 @@ function newGame() {
   render();
 }
 
-/* ----------------- gameplay ----------------- */
 function visitPlanet(planet) {
   const parts = [`Scanned ${planet.name}.`];
 
@@ -648,7 +635,6 @@ function movePlayer(dx, dy) {
   render();
 }
 
-/* ----------------- rendering ----------------- */
 function getCellClasses(x, y) {
   const region = state.regionMap[y][x];
   let classes = `cell region-${region}`;
@@ -719,7 +705,6 @@ function render() {
   }
 }
 
-/* ----------------- input ----------------- */
 document.addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase();
 
@@ -734,5 +719,4 @@ document.addEventListener("keydown", (e) => {
   if (k === "arrowright" || k === "d") movePlayer(1, 0);
 });
 
-/* ----------------- start ----------------- */
 newGame();
